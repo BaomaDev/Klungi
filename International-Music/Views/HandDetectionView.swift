@@ -1,8 +1,5 @@
 //
-//  HandDetectionView.swift
-//  International-Music
-//
-//  Created by Jesse Robinson Junior Simanjuntak on 17/06/25.
+//  HandDetectionView.swift - Horizontal Circle Layout
 //
 
 import SwiftUI
@@ -12,6 +9,8 @@ struct HandDetectionView: View {
     @EnvironmentObject var audioManager: AudioManager
     @State private var circles: [MusicCircle] = []
     @State private var handPoints: [CGPoint] = []
+    @State private var screenSize: CGSize = .zero
+    @State private var orientation = UIDeviceOrientation.portrait
     
     var body: some View {
         GeometryReader { geometry in
@@ -38,9 +37,20 @@ struct HandDetectionView: View {
                 }
                 .padding()
             }
+            .onChange(of: geometry.size) { newSize in
+                screenSize = newSize
+                setupHorizontalCircles(for: newSize)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                #if os(iOS)
+                orientation = UIDevice.current.orientation
+                #endif
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    setupHorizontalCircles(for: screenSize)
+                }
+            }
         }
         .onAppear {
-            setupCircles()
             cameraManager.startSession()
         }
         .onDisappear {
@@ -48,32 +58,42 @@ struct HandDetectionView: View {
         }
     }
     
-    // MARK: - Private Methods
-    
-    private func setupCircles() {
-        // Circle setup logic...
+    // MARK: - Horizontal Circle Layout
+    private func setupHorizontalCircles(for size: CGSize = UIScreen.main.bounds.size) {
         let notes = MusicNote.allCases
-        let circleSpacing: CGFloat = 120
-        let startY: CGFloat = 150
-        let columns = 4
+        let screenWidth = size.width
+        let screenHeight = size.height
         
-        for (index, note) in notes.enumerated() {
-            let row = index / columns
-            let col = index % columns
+        // Calculate spacing for horizontal layout
+        let totalNotes = notes.count // 7 notes
+        let circleRadius: CGFloat = 45.0
+        let minSpacing: CGFloat = circleRadius * 2.2 // Minimum space between circles
+                
+        // Check if we need to adjust for screen width
+        let availableWidth = screenWidth - 100 // 50px margin on each side
+        let spacing = min(minSpacing, availableWidth / CGFloat(totalNotes - 1))
+        
+        // Calculate starting position to center the layout
+        let actualTotalWidth = CGFloat(totalNotes - 1) * spacing
+        let startX = (screenWidth - actualTotalWidth) / 2
+        
+        // Position all circles horizontally at the same Y level
+        let centerY = screenHeight * 0.6 // Position at 60% from top
+        
+        circles = notes.enumerated().map { index, note in
+            let x = startX + CGFloat(index) * spacing
+            let y = centerY
             
-            let x = CGFloat(col) * circleSpacing + circleSpacing
-            let y = startY + CGFloat(row) * circleSpacing
-            
-            let circle = InteractiveCircle(
+            return MusicCircle(
                 position: CGPoint(x: x, y: y),
-                note: note
+                note: note,
+                radius: circleRadius
             )
-            circles.append(circle)
         }
     }
     
+    // Enhanced collision detection with better precision
     private func checkCollisions(in size: CGSize) {
-        // Collision detection logic...
         let currentTime = CACurrentMediaTime()
         
         for handPoint in handPoints {
@@ -81,11 +101,26 @@ struct HandDetectionView: View {
                 let circle = circles[index]
                 let distance = sqrt(pow(handPoint.x - circle.position.x, 2) + pow(handPoint.y - circle.position.y, 2))
                 
-                if distance <= circle.radius {
-                    // Check cooldown to prevent rapid triggering
-                    if currentTime - circle.lastTriggerTime > triggerCooldown {
-                        triggerCircle(at: index)
-                        circles[index].lastTriggerTime = currentTime
+                // Slightly larger collision radius for better interaction
+                let collisionRadius = circle.radius * 1.1
+                
+                if distance <= collisionRadius && currentTime - circle.lastTriggerTime > 0.25 {
+                    circles[index].isActive = true
+                    circles[index].lastTriggerTime = currentTime
+                    
+                    // Add haptic feedback for iOS
+                    #if os(iOS)
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
+                    impactFeedback.impactOccurred()
+                    #endif
+                    
+                    audioManager.playNote(circle.note)
+                    
+                    // Reset active state after animation
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                        if index < circles.count {
+                            circles[index].isActive = false
+                        }
                     }
                 }
             }

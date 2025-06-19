@@ -6,6 +6,12 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		88EF904D2DFFBED900A4341E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88EF904C2DFFBED900A4341E /* AVFoundation.framework */; };
+		88EF904F2DFFBEE300A4341E /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88EF904E2DFFBEE300A4341E /* Vision.framework */; };
+		88EF90512DFFBEE800A4341E /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88EF90502DFFBEE800A4341E /* UIKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		88EF90292DFFBE9200A4341E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +33,9 @@
 		88EF901B2DFFBE9200A4341E /* International-Music.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "International-Music.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		88EF90282DFFBE9200A4341E /* International-MusicTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "International-MusicTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		88EF90322DFFBE9200A4341E /* International-MusicUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "International-MusicUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		88EF904C2DFFBED900A4341E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		88EF904E2DFFBEE300A4341E /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+		88EF90502DFFBEE800A4341E /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -52,6 +61,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				88EF904F2DFFBEE300A4341E /* Vision.framework in Frameworks */,
+				88EF90512DFFBEE800A4341E /* UIKit.framework in Frameworks */,
+				88EF904D2DFFBED900A4341E /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +90,7 @@
 				88EF901D2DFFBE9200A4341E /* International-Music */,
 				88EF902B2DFFBE9200A4341E /* International-MusicTests */,
 				88EF90352DFFBE9200A4341E /* International-MusicUITests */,
+				88EF904B2DFFBED900A4341E /* Frameworks */,
 				88EF901C2DFFBE9200A4341E /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +103,16 @@
 				88EF90322DFFBE9200A4341E /* International-MusicUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		88EF904B2DFFBED900A4341E /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				88EF90502DFFBEE800A4341E /* UIKit.framework */,
+				88EF904E2DFFBEE300A4341E /* Vision.framework */,
+				88EF904C2DFFBED900A4341E /* AVFoundation.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -395,13 +418,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PW3H9H9Q3Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to detect hand gestures";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -422,13 +448,16 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = PW3H9H9Q3Y;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app needs camera access to detect hand gestures";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

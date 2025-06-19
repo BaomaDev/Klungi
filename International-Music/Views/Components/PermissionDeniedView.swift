@@ -1,3 +1,11 @@
+//
+//  PermissionDeniedView.swift
+//  International-Music
+//
+//  Created by Jesse Robinson Junior Simanjuntak on 17/06/25.
+//
+
+
 import SwiftUI
 
 struct PermissionDeniedView: View {
