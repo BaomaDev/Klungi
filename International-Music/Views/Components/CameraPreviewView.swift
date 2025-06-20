@@ -17,7 +17,6 @@ struct CameraPreviewView: View {
     }
 }
 
-#if os(iOS)
 struct CameraPreview: UIViewRepresentable {
     let cameraManager: CameraManager
     
@@ -54,69 +53,3 @@ class PreviewUIView: UIView {
         previewLayer?.frame = bounds
     }
 }
-#else
-struct CameraPreview: View {
-    let cameraManager: CameraManager
-    @State private var mockHandPosition1 = CGPoint(x: 100, y: 200)
-    @State private var mockHandPosition2 = CGPoint(x: 300, y: 400)
-    
-    var body: some View {
-        GeometryReader { geometry in
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .overlay(
-                    VStack {
-                        Text("Camera Preview")
-                            .font(.title2)
-                            .foregroundColor(.white)
-                        Text("(macOS/Simulator)")
-                            .font(.caption)
-                            .foregroundColor(.white.opacity(0.7))
-                        
-                        Spacer()
-                        
-                        // Mock hand indicators for testing
-                        HStack {
-                            Circle()
-                                .fill(Color.blue.opacity(0.6))
-                                .frame(width: 20, height: 20)
-                                .overlay(Text("L").font(.caption).foregroundColor(.white))
-                            
-                            Text("Mock Hand Tracking")
-                                .font(.caption)
-                                .foregroundColor(.white.opacity(0.8))
-                            
-                            Circle()
-                                .fill(Color.green.opacity(0.6))
-                                .frame(width: 20, height: 20)
-                                .overlay(Text("R").font(.caption).foregroundColor(.white))
-                        }
-                        .padding(.bottom, 50)
-                    }
-                    .multilineTextAlignment(.center)
-            )
-            .onAppear {
-                startMockHandTracking(in: geometry.size)
-            }
-        }
-    }
-    
-    private func startMockHandTracking(in size: CGSize) {
-        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { _ in
-            // Simulate moving hands
-            mockHandPosition1.x += CGFloat.random(in: -20...20)
-            mockHandPosition1.y += CGFloat.random(in: -20...20)
-            mockHandPosition2.x += CGFloat.random(in: -20...20)
-            mockHandPosition2.y += CGFloat.random(in: -20...20)
-            
-            // Keep hands within bounds
-            mockHandPosition1.x = max(50, min(size.width - 50, mockHandPosition1.x))
-            mockHandPosition1.y = max(50, min(size.height - 50, mockHandPosition1.y))
-            mockHandPosition2.x = max(50, min(size.width - 50, mockHandPosition2.x))
-            mockHandPosition2.y = max(50, min(size.height - 50, mockHandPosition2.y))
-            
-            cameraManager.handPointsPublisher.send([mockHandPosition1, mockHandPosition2])
-        }
-    }
-}
-#endif

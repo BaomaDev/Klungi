@@ -110,24 +110,15 @@ extension MusicNote {
     // Audio file naming convention - customize these names to match your files
     var audioFileName: String {
         switch self {
-        case .c4: return "sound"      // Should match your file: note_c4.mp3
-        case .d4: return "sound2"     // Should match your file: note_d4.mp3
-        case .e4: return "sound3"    // Should match your file: note_e4.mp3
-        case .f4: return "sound4"     // Should match your file: note_f4.mp3
-        case .g4: return "sound5"     // Should match your file: note_g4.mp3
-        case .a4: return "sound6"     // Should match your file: note_a4.mp3
-        case .b4: return "sound7"    // Should match your file: note_b4.mp3
+        case .c4: return "sound"
+        case .d4: return "sound2"
+        case .e4: return "sound3"
+        case .f4: return "sound4"    
+        case .g4: return "sound5"
+        case .a4: return "sound6"
+        case .b4: return "sound7"
+        case .b5: return "sound7"
+        case .b6: return "sound7"
         }
-        
-        // Alternative naming patterns you can use instead:
-        
-        // Pattern 1: Simple note names
-        // return rawValue.lowercased()  // Results in: "c4", "d4", etc.
-        
-        // Pattern 2: Piano prefix
-        // return "piano_" + rawValue.lowercased()  // Results in: "piano_c4", "piano_d4", etc.
-        
-        // Pattern 3: Angklung sounds (matching your image assets)
-        // return "angklung_" + rawValue.lowercased()  // Results in: "angklung_c4", etc.
     }
 }

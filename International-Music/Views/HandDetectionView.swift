@@ -42,9 +42,7 @@ struct HandDetectionView: View {
                 setupHorizontalCircles(for: newSize)
             }
             .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-                #if os(iOS)
                 orientation = UIDevice.current.orientation
-                #endif
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
                     setupHorizontalCircles(for: screenSize)
                 }
@@ -78,7 +76,7 @@ struct HandDetectionView: View {
         let startX = (screenWidth - actualTotalWidth) / 2
         
         // Position all circles horizontally at the same Y level
-        let centerY = screenHeight * 0.6 // Position at 60% from top
+        let centerY = screenHeight * 0.3 // Position at 60% from top
         
         circles = notes.enumerated().map { index, note in
             let x = startX + CGFloat(index) * spacing
@@ -86,8 +84,8 @@ struct HandDetectionView: View {
             
             return MusicCircle(
                 position: CGPoint(x: x, y: y),
-                note: note,
-                radius: circleRadius
+                radius: circleRadius,
+                note: note
             )
         }
     }
@@ -107,12 +105,6 @@ struct HandDetectionView: View {
                 if distance <= collisionRadius && currentTime - circle.lastTriggerTime > 0.25 {
                     circles[index].isActive = true
                     circles[index].lastTriggerTime = currentTime
-                    
-                    // Add haptic feedback for iOS
-                    #if os(iOS)
-                    let impactFeedback = UIImpactFeedbackGenerator(style: .medium)
-                    impactFeedback.impactOccurred()
-                    #endif
                     
                     audioManager.playNote(circle.note)
                     

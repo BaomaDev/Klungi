@@ -10,7 +10,6 @@ import Vision
 import Combine
 import SwiftUI
 
-// Stable hand tracking data structure
 struct TrackedHand {
     let id: UUID
     var position: CGPoint
@@ -25,6 +24,8 @@ struct TrackedHand {
     }
 }
 
+
+
 class CameraManager: NSObject, ObservableObject {
     @Published var isAuthorized = false
     @Published var permissionDenied = false
@@ -33,30 +34,25 @@ class CameraManager: NSObject, ObservableObject {
     private let videoQueue = DispatchQueue(label: "videoQueue", qos: .userInteractive)
     private var handPoseRequest: VNDetectHumanHandPoseRequest!
     
-    // Stable hand tracking
     private var trackedHands: [TrackedHand] = []
-    private let handTrackingThreshold: CGFloat = 60.0 // Distance threshold for hand matching
-    private let handTimeoutInterval: TimeInterval = 0.5 // How long before a hand is considered lost
+    private let handTrackingThreshold: CGFloat = 60.0
+    private let handTimeoutInterval: TimeInterval = 0.5
     private let minConfidence: Float = 0.3
     
-    #if os(iOS)
     var previewLayer: AVCaptureVideoPreviewLayer?
     private var videoOutput: AVCaptureVideoDataOutput!
-    #endif
     
+    // PassthroughSubject buat lempar only no need callback
     let handPointsPublisher = PassthroughSubject<[CGPoint], Never>()
     
     override init() {
         super.init()
         setupVision()
-        #if os(iOS)
         setupCamera()
-        #endif
     }
     
-    // MARK: - Public Methods
+    // MARK: - Req Permission
     func requestPermission() {
-        #if os(iOS)
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             DispatchQueue.main.async {
@@ -81,49 +77,35 @@ class CameraManager: NSObject, ObservableObject {
                 self.permissionDenied = true
             }
         }
-        #else
-        // For macOS/other platforms, simulate permission granted
-        DispatchQueue.main.async {
-            self.isAuthorized = true
-            self.permissionDenied = false
-        }
-        #endif
     }
-    
+        
     func startSession() {
-        #if os(iOS)
         if !session.isRunning {
             videoQueue.async {
                 self.session.startRunning()
             }
         }
-        #else
-        // For non-iOS platforms, simulate stable hand detection
-        simulateStableHandDetection()
-        #endif
     }
     
     func stopSession() {
-        #if os(iOS)
         if session.isRunning {
             videoQueue.async {
                 self.session.stopRunning()
             }
         }
-        #endif
         trackedHands.removeAll()
     }
     
-    // MARK: - Private Methods
+    // MARK: - Vision Setup
     private func setupVision() {
         handPoseRequest = VNDetectHumanHandPoseRequest()
         handPoseRequest.maximumHandCount = 2
     }
     
-    #if os(iOS)
     private func setupCamera() {
         session.sessionPreset = .high
         
+        // take camera input
         guard let frontCamera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) else {
             print("Front camera not available")
             return
@@ -139,6 +121,7 @@ class CameraManager: NSObject, ObservableObject {
             return
         }
         
+        // display camera output
         videoOutput = AVCaptureVideoDataOutput()
         videoOutput.setSampleBufferDelegate(self, queue: videoQueue)
         videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
@@ -150,7 +133,7 @@ class CameraManager: NSObject, ObservableObject {
         previewLayer = AVCaptureVideoPreviewLayer(session: session)
         previewLayer?.videoGravity = .resizeAspectFill
         
-        // Enable device orientation changes
+        // device orientation, flipped, etc
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(orientationChanged),
@@ -186,36 +169,8 @@ class CameraManager: NSObject, ObservableObject {
             }
         }
     }
-    #else
-    private func simulateStableHandDetection() {
-        var hand1Position = CGPoint(x: 200, y: 300)
-        var hand2Position = CGPoint(x: 600, y: 400)
-        
-        Timer.scheduledTimer(withTimeInterval: 0.033, repeats: true) { _ in // ~30 FPS
-            let screenSize = NSScreen.main?.frame.size ?? CGSize(width: 800, height: 600)
-            
-            // Smooth movement simulation
-            hand1Position.x += CGFloat.random(in: -10...10)
-            hand1Position.y += CGFloat.random(in: -10...10)
-            hand2Position.x += CGFloat.random(in: -10...10)
-            hand2Position.y += CGFloat.random(in: -10...10)
-            
-            // Keep hands within bounds
-            hand1Position.x = max(50, min(screenSize.width - 50, hand1Position.x))
-            hand1Position.y = max(50, min(screenSize.height - 50, hand1Position.y))
-            hand2Position.x = max(50, min(screenSize.width - 50, hand2Position.x))
-            hand2Position.y = max(50, min(screenSize.height - 50, hand2Position.y))
-            
-            let stableHands = [hand1Position, hand2Position]
-            
-            DispatchQueue.main.async {
-                self.handPointsPublisher.send(stableHands)
-            }
-        }
-    }
-    #endif
     
-    // MARK: - Stable Hand Tracking Logic
+    // MARK: - Logika buat Clean Hand Capture
     private func updateTrackedHands(with newDetections: [CGPoint], confidences: [Float]) {
         let currentTime = CACurrentMediaTime()
         
@@ -225,7 +180,7 @@ class CameraManager: NSObject, ObservableObject {
         var updatedHands: [TrackedHand] = []
         var usedDetections = Set<Int>()
         
-        // Try to match existing hands with new detections
+        // value buat new detection on hand
         for existingHand in trackedHands {
             var bestMatch: (index: Int, distance: CGFloat)? = nil
             
@@ -282,7 +237,6 @@ class CameraManager: NSObject, ObservableObject {
 }
 
 // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
-#if os(iOS)
 extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
@@ -316,7 +270,7 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
             
             // Cek confidence keduanya
             if thumbPoint.confidence >= minConfidence && indexPoint.confidence >= minConfidence {
-                // Misalnya ambil titik tengah antara thumb dan index
+                // ambil titik tengah antara thumb dan index
                 let avgX = (thumbPoint.location.x + indexPoint.location.x) / 2
                 let avgY = (thumbPoint.location.y + indexPoint.location.y) / 2
                 let averagePoint = CGPoint(x: avgX, y: avgY)
@@ -333,7 +287,26 @@ extension CameraManager: AVCaptureVideoDataOutputSampleBufferDelegate {
             }
         }
         
+//        for observation in results {
+//            // Cuma ambil index finger tip aja
+//            guard let indexPoint = try? observation.recognizedPoint(.indexTip) else {
+//                continue
+//            }
+//            
+//            // Cek confidence index finger
+//            if indexPoint.confidence >= minConfidence {
+//                // Langsung pakai posisi index tip, gak perlu rata-rata
+//                let convertedPoint = previewLayer?.layerPointConverted(
+//                    fromCaptureDevicePoint: CGPoint(x: indexPoint.location.x, y: 1 - indexPoint.location.y)
+//                ) ?? .zero
+//                
+//                handPositions.append(convertedPoint)
+//                
+//                // Langsung pakai confidence index finger
+//                confidences.append(indexPoint.confidence)
+//            }
+//        }
+        
         return (handPositions, confidences)
     }
 }
-#endif

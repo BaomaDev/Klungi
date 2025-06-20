@@ -15,26 +15,26 @@ struct MusicCircleView: View {
     
     var body: some View {
         ZStack {
-            // Background glow effect when active
+            // Background glow effect when active - LOWER OPACITY
             if circle.isActive {
                 imageView
                     .frame(width: imageWidth * 1.5, height: imageHeight * 1.5)
-                    .opacity(0.2)
+                    .opacity(0.3) // Changed from 1.0 to 0.3 for lower opacity
                     .blur(radius: 10)
                     .scaleEffect(1.5)
                     .animation(.easeOut(duration: 0.6), value: circle.isActive)
             }
             
-            // Main image with shake and pulse effects
+            // Main image with shake and pulse effects - 100% OPACITY
             imageView
                 .frame(width: imageWidth, height: imageHeight)
                 .scaleEffect(scaleEffect)
                 .rotationEffect(.degrees(rotationAngle))
                 .offset(x: shakeOffset, y: shakeOffset * 0.5)
-                .opacity(circle.isActive ? 1.0 : 0.85)
+                .opacity(1.0) // Always 100% opacity for main image
             
             // Note label overlay
-            VStack {
+            ZStack {
                 Spacer()
                 Text(circle.note.rawValue)
                     .font(.system(size: 12, weight: .bold))
@@ -132,14 +132,14 @@ struct MusicCircleView: View {
             }
             
             HStack(spacing: 30) {
-                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 100, y: 200), note: .e4, radius: 60))
-                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 200, y: 200), note: .f4, radius: 60))
+                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 100, y: 200), radius: 60, note: .e4))
+                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 200, y: 200), radius: 60, note: .f4))
             }
             
             // Show all notes with different sizes
             HStack(spacing: 20) {
                 ForEach(MusicNote.allCases, id: \.self) { note in
-                    MusicCircleView(circle: MusicCircle(position: .zero, note: note, radius: 40))
+                    MusicCircleView(circle: MusicCircle(position: .zero, radius: 40, note: note))
                 }
             }
         }

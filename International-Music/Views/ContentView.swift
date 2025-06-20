@@ -31,19 +31,13 @@ struct ContentView: View {
             cameraManager.requestPermission()
             
             // Enable orientation notifications
-            #if os(iOS)
             UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-            #endif
         }
         .onDisappear {
-            #if os(iOS)
             UIDevice.current.endGeneratingDeviceOrientationNotifications()
-            #endif
         }
         .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            #if os(iOS)
             orientation = UIDevice.current.orientation
-            #endif
         }
         // Support all orientations
         .supportedOrientations(.all)
@@ -54,11 +48,9 @@ struct ContentView: View {
 extension View {
     func supportedOrientations(_ orientations: UIInterfaceOrientationMask) -> some View {
         self.onAppear {
-            #if os(iOS)
             if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
                 windowScene.requestGeometryUpdate(.iOS(interfaceOrientations: orientations))
             }
-            #endif
         }
     }
 }
