@@ -8,39 +8,22 @@
 import SwiftUI
 
 struct ContentView: View {
-    @StateObject private var cameraManager = CameraManager()
-    @StateObject private var audioManager = AudioManager()
     @State private var orientation = UIDeviceOrientation.unknown
     
     var body: some View {
-        ZStack {
-            Color.black.ignoresSafeArea()
-            
-            if cameraManager.isAuthorized {
-                HandDetectionView()
-                    .environmentObject(cameraManager)
-                    .environmentObject(audioManager)
-            } else if cameraManager.permissionDenied {
-                PermissionDeniedView()
-            } else {
-                ProgressView("Requesting Camera Permission...")
-                    .foregroundColor(.white)
+        MenuView()
+            .onAppear {
+                // Enable orientation notifications
+                UIDevice.current.beginGeneratingDeviceOrientationNotifications()
             }
-        }
-        .onAppear {
-            cameraManager.requestPermission()
-            
-            // Enable orientation notifications
-            UIDevice.current.beginGeneratingDeviceOrientationNotifications()
-        }
-        .onDisappear {
-            UIDevice.current.endGeneratingDeviceOrientationNotifications()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
-            orientation = UIDevice.current.orientation
-        }
-        // Support all orientations
-        .supportedOrientations(.all)
+            .onDisappear {
+                UIDevice.current.endGeneratingDeviceOrientationNotifications()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIDevice.orientationDidChangeNotification)) { _ in
+                orientation = UIDevice.current.orientation
+            }
+            // Support all orientations
+            .supportedOrientations(.all)
     }
 }
 
@@ -53,8 +36,4 @@ extension View {
             }
         }
     }
-}
-
-#Preview {
-    ContentView()
 }
