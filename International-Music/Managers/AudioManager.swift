@@ -10,6 +10,10 @@ import SwiftUI
 
 class AudioManager: ObservableObject {
     private var audioPlayers: [String: AVAudioPlayer] = [:]
+    private var backgroundMusicPlayer: AVAudioPlayer?
+    
+    @Published var isBackgroundMusicPlaying: Bool = false
+    @Published var backgroundMusicVolume: Float = 0.5
     
     init() {
         setupAudioSession()
@@ -26,6 +30,78 @@ class AudioManager: ObservableObject {
         } else {
             // Fallback to generated tone if audio file not found
             playGeneratedTone(frequency: note.frequency, duration: 0.5)
+        }
+    }
+    
+    // MARK: - Background Music Methods
+    func playBackgroundMusic(fileName: String, volume: Float = 0.5) {
+        stopBackgroundMusic() // Stop any currently playing background music
+        
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: nil) ??
+                       Bundle.main.url(forResource: fileName.replacingOccurrences(of: ".mp3", with: ""), withExtension: "mp3") ??
+                       Bundle.main.url(forResource: fileName.replacingOccurrences(of: ".wav", with: ""), withExtension: "wav") ??
+                       Bundle.main.url(forResource: fileName.replacingOccurrences(of: ".m4a", with: ""), withExtension: "m4a") else {
+            print("Background music file not found: \(fileName)")
+            return
+        }
+        
+        do {
+            backgroundMusicPlayer = try AVAudioPlayer(contentsOf: url)
+            backgroundMusicPlayer?.numberOfLoops = -1  // Loop indefinitely
+            backgroundMusicPlayer?.volume = volume
+            backgroundMusicPlayer?.prepareToPlay()
+            backgroundMusicPlayer?.play()
+            
+            isBackgroundMusicPlaying = true
+            backgroundMusicVolume = volume
+            
+            print("🎵 Started background music: \(fileName)")
+        } catch {
+            print("Error playing background music \(fileName): \(error)")
+        }
+    }
+    
+    func stopBackgroundMusic() {
+        backgroundMusicPlayer?.stop()
+        backgroundMusicPlayer = nil
+        isBackgroundMusicPlaying = false
+        print("🛑 Stopped background music")
+    }
+    
+    func pauseBackgroundMusic() {
+        backgroundMusicPlayer?.pause()
+        isBackgroundMusicPlaying = false
+        print("⏸️ Paused background music")
+    }
+    
+    func resumeBackgroundMusic() {
+        backgroundMusicPlayer?.play()
+        isBackgroundMusicPlaying = backgroundMusicPlayer?.isPlaying ?? false
+        print("▶️ Resumed background music")
+    }
+    
+    func setBackgroundMusicVolume(_ volume: Float) {
+        backgroundMusicPlayer?.volume = volume
+        backgroundMusicVolume = volume
+    }
+    
+    func fadeBackgroundMusic(to volume: Float, duration: TimeInterval = 1.0) {
+        guard let player = backgroundMusicPlayer else { return }
+        
+        let steps = 20
+        let stepDuration = duration / Double(steps)
+        let volumeStep = (volume - player.volume) / Float(steps)
+        
+        var currentStep = 0
+        Timer.scheduledTimer(withTimeInterval: stepDuration, repeats: true) { timer in
+            currentStep += 1
+            player.volume += volumeStep
+            
+            if currentStep >= steps {
+                timer.invalidate()
+                player.volume = volume
+                self.backgroundMusicVolume = volume
+            }
         }
     }
     

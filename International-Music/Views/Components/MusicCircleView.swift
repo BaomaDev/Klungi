@@ -14,7 +14,7 @@ struct MusicCircleView: View {
     @State private var scaleEffect: CGFloat = 1.0
     
     var body: some View {
-        ZStack {
+        ZStack(alignment: .top) { // Changed to top alignment
             // Background glow effect when active - LOWER OPACITY
             if circle.isActive {
                 imageView
@@ -23,6 +23,7 @@ struct MusicCircleView: View {
                     .blur(radius: 10)
                     .scaleEffect(1.5)
                     .animation(.easeOut(duration: 0.6), value: circle.isActive)
+                    .offset(y: (imageHeight * 1.5) / 2) // Offset to align top edge with hitpoint
             }
             
             // Main image with shake and pulse effects - 100% OPACITY
@@ -30,30 +31,28 @@ struct MusicCircleView: View {
                 .frame(width: imageWidth, height: imageHeight)
                 .scaleEffect(scaleEffect)
                 .rotationEffect(.degrees(rotationAngle))
-                .offset(x: shakeOffset, y: shakeOffset * 0.5)
+                .offset(x: shakeOffset, y: shakeOffset * 0.5 + imageHeight / 2) // Offset to align top edge with hitpoint
                 .opacity(1.0) // Always 100% opacity for main image
             
-            // Note label overlay
-            ZStack {
-                Spacer()
-                Text(circle.note.rawValue)
-                    .font(.system(size: 12, weight: .bold))
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 3)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6)
-                            .fill(circle.note.color.opacity(0.8))
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                            )
-                    )
-                    .offset(y: max(imageHeight, imageWidth) / 2 + 15)
-                    .scaleEffect(circle.isActive ? 1.1 : 1.0)
-                    .animation(.easeInOut(duration: 0.3), value: circle.isActive)
-            }
+            // Note label overlay - positioned below the image
+            Text(circle.note.rawValue)
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 8)
+                .padding(.vertical, 3)
+                .background(
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(circle.note.color.opacity(0.8))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 6)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                )
+                .offset(y: imageHeight + 15) // Position below the image
+                .scaleEffect(circle.isActive ? 1.1 : 1.0)
+                .animation(.easeInOut(duration: 0.3), value: circle.isActive)
         }
+        .frame(height: imageHeight + 40) // Set frame height to contain the image and label
         .onChange(of: circle.isActive) { isActive in
             if isActive {
                 startShakeAnimation()
@@ -126,20 +125,35 @@ struct MusicCircleView: View {
         Color.black.ignoresSafeArea()
         
         VStack(spacing: 30) {
-            HStack(spacing: 30) {
-                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 100, y: 100), note: .c4))
-                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 200, y: 100), note: .d4))
+            // Show hitpoint alignment with a reference line
+            VStack {
+                // Reference line to show hitpoint alignment
+                Rectangle()
+                    .fill(Color.red.opacity(0.5))
+                    .frame(height: 2)
+                
+                HStack(spacing: 30) {
+                    MusicCircleView(circle: MusicCircle(position: CGPoint(x: 100, y: 100), note: .c4))
+                    MusicCircleView(circle: MusicCircle(position: CGPoint(x: 200, y: 100), note: .d4))
+                    MusicCircleView(circle: MusicCircle(position: CGPoint(x: 300, y: 100), note: .e4))
+                }
             }
             
-            HStack(spacing: 30) {
-                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 100, y: 200), radius: 60, note: .e4))
-                MusicCircleView(circle: MusicCircle(position: CGPoint(x: 200, y: 200), radius: 60, note: .f4))
-            }
-            
-            // Show all notes with different sizes
-            HStack(spacing: 20) {
-                ForEach(MusicNote.allCases, id: \.self) { note in
-                    MusicCircleView(circle: MusicCircle(position: .zero, radius: 40, note: note))
+            // Show all notes with different sizes, aligned at hitpoints
+            VStack {
+                Text("All Notes (Hitpoints Aligned)")
+                    .foregroundColor(.white)
+                    .padding()
+                
+                // Reference line
+                Rectangle()
+                    .fill(Color.red.opacity(0.5))
+                    .frame(height: 2)
+                
+                HStack(spacing: 20) {
+                    ForEach(MusicNote.allCases, id: \.self) { note in
+                        MusicCircleView(circle: MusicCircle(position: .zero, radius: 40, note: note))
+                    }
                 }
             }
         }

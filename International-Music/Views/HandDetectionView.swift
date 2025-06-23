@@ -43,14 +43,14 @@ struct HandDetectionView: View {
                     return smoothedHand
                 })
                 
-                VStack {
-                    HStack {
-                        StatusIndicatorView(handCount: hands.count)
-                        Spacer()
-                    }
-                    Spacer()
-                }
-                .padding()
+//                VStack {
+//                    HStack {
+//                        StatusIndicatorView(handCount: hands.count)
+//                        Spacer()
+//                    }
+//                    Spacer()
+//                }
+//                .padding()
             }
             .onChange(of: geometry.size) { newSize in
                 screenSize = newSize
