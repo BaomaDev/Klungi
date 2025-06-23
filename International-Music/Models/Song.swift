@@ -57,7 +57,7 @@ extension Song {
             title: "Morning Light",
             artist: "Original Composition",
             lyrics: [
-                LyricLine(text: "Wake up to the morning light", startTime: 0, endTime: 4, isChorus: false),
+                LyricLine(text: "Rasa Sayange", startTime: 0, endTime: 4, isChorus: false),
                 LyricLine(text: "Golden rays shine so bright", startTime: 4, endTime: 8, isChorus: false),
                 LyricLine(text: "Every day is a gift to see", startTime: 8, endTime: 12, isChorus: false),
                 LyricLine(text: "All the beauty surrounding me", startTime: 12, endTime: 16, isChorus: false),
